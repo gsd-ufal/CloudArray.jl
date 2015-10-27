@@ -30,6 +30,9 @@ const ssh_pubkey=homedir()*"/.ssh/azkey.pub"
 
 ###=============================================================================
 
+# TODO: using module to make this call only at pre-compile time 
+run(`chmod +x $(Pkg.dir("CloudArray"))/src/cloud_setup.sh`)
+
 type Container # Abstraction for Docker container
           cid::AbstractString
           pid::Integer 
