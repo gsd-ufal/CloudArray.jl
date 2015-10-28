@@ -102,12 +102,12 @@ function create_containers(n_of_containers::Integer, n_of_cpus=0, mem_size=512)
             port = 3000+get_port()
             # Creating a docker container in VM
             println("Creating container ($key)...")
-            @time cid = readall(`ssh -i $ssh_key -o StrictHostKeyChecking=no dockeru@$host "docker run -d -p 0.0.0.0:$port:22/tcp --cpuset-cpus="$n_of_cpus" -m=$(mem_size)M cloudarray:latest"`)
+            cid = readall(`ssh -i $ssh_key -o StrictHostKeyChecking=no dockeru@$host "docker run -d -p 0.0.0.0:$port:22/tcp --cpuset-cpus="$n_of_cpus" -m=$(mem_size)M cloudarray:latest"`)
             # Configuring ssh without password (transfer public key to container)
             println("SSH configuration ($key)... ")
-            @time run(pipeline(`cat $ssh_pubkey`,`sshpass -p $passwd ssh -o StrictHostKeyChecking=no -p $port root@$host 'umask 077; mkdir -p ~/.ssh; cat >> ~/.ssh/authorized_keys'`))
+            run(pipeline(`cat $ssh_pubkey`,`sshpass -p $passwd ssh -o StrictHostKeyChecking=no -p $port root@$host 'umask 077; mkdir -p ~/.ssh; cat >> ~/.ssh/authorized_keys'`))
             println("Adding worker ($key)...")
-            @time pid = addprocs(["root@$host"]; tunnel=true,sshflags=`-i $ssh_key -p $port`,dir="/opt/julia/bin")
+            pid = addprocs(["root@$host"]; tunnel=true,sshflags=`-i $ssh_key -p $port`,dir="/opt/julia/bin")
             map_containers[key] = Container(chomp(cid),pid[1],n_of_cpus,mem_size) # Adding Container to Dict
         end
 end
