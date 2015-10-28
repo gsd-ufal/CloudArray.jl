@@ -135,17 +135,14 @@ DistributedArrays.DArray(input::AbstractArray) = begin distribute_cloud(input) e
 @doc """
 Core constructor of the CloudArray
 
-It gets a Task as input and creates a CloudArray from it. The task must generate lines of data by each consume(::Task) call. Each call is a cell of the CloudArray.
+Creates a CloudArray from a task. The task must generate data (lines) per consume(::Task) call. Each call will be stored as a CloudArray element.
 
-is_numeric::Bool --> you tell if your input data is composed by numbers. The default is true, if you use an input with strings, you will get some errors.
-
-chunk_max_size::Int --> Maximum size of each chunk for the CloudArray in bytes. The default is 1MB (1024*1024)
-
-debug::Bool --> Enables the debug mode, default is false. If you use it as true, the function output will be: the_carray, [number_of_chunks], [time_to_instance_each_chunk] instead of only the_carray
+* `is_numeric::Bool` should be set to `true` if your data is composed by numbers. The default value is `true`.
+* `chunk_max_size::Int` means the maximum size of each CloudArray chunk in bytes. The default value is 1MB (1024*1024).
+* `debug::Bool` enables debug mode, default is `false`. If you set `true`, the function output will be `DArray, [number_of_chunks], [time_to_instance_each_chunk]` instead of only returning a `DArray`.
 
 
-This constructor was created with tasks to make easier to tune a custom CArray, since all the user needs to do is to create a task which generates the lines of the CloudArray by each call 
-eg: task_from_array(...) and task_from_text(...)
+This constructor was created with tasks to make easier to tune a custom CloudArray. The user just needs to create a task which generates the lines of the CloudArray by each call, e.g.: `task_from_array(...)` and `task_from_text(...)`.
 """->
 function carray_from_task(generator::Task=task_from_text("floats.txt"), is_numeric::Bool=true, chunk_max_size::Int=1024*1024,debug::Bool=false)
 	
