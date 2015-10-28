@@ -63,9 +63,9 @@ end
 @doc """
 ### set_host(h::AbstractString,p::AbstractString)
 
-Set a Virtual Machine to host containers.
+Configures passwordless SSH connections at host `h` whose password is `p`.
 
-(Requires sshpass)
+This function calls the `cloud_setup.sh` script which requires `sshpass`.
 
 ```Example
 set_host("cloudarray01.cloudapp.net","password")
@@ -91,8 +91,22 @@ end
 @doc """
 ### create_containers(n_of_containers::Integer, n_of_cpus::Integer, mem_size::Integer)
 
-Launch container(s) and adds as a worker via SSH.
-Requires sshpass.
+Launches Docker containers and adds them as Julia workers configured with passwordless SSH.
+
+This function requires `sshpass` to be installed:
+
+* Debian-based Linux distros as Ubuntu:
+
+```
+sudo apt-get install sshpass
+```
+
+* OS X through [macports](http://macports.org):
+
+```
+sudo port install sshpass
+```
+
 
 ```Example
 create_containers(2,3,1024) # 2 containers with 3 CPU Cores and 1gb RAM
@@ -105,7 +119,7 @@ function create_containers(n_of_containers::Integer, n_of_cpus=0, mem_size=512)
         for i in 1:n_of_containers
             key = get_next_key()
             port = 3000+get_port()
-            # Creating a docker container in VM
+            # Creating a docker container at VM
             println("Creating container ($key)...")
             cid = readall(`ssh -i $ssh_key -o StrictHostKeyChecking=no dockeru@$host "docker run -d -p 0.0.0.0:$port:22/tcp --cpuset-cpus="$n_of_cpus" -m=$(mem_size)M cloudarray:latest"`)
             # Configuring ssh without password (transfer public key to container)
@@ -160,7 +174,7 @@ end
 containers()
 ```
 
-Returns a list of all containers processes identifiers.
+Returns the list of all containers' processes identifiers (IDs).
 
 """ ->
 function containers()
@@ -172,7 +186,7 @@ end
 ncontainers()
 ```
 
-Get the number of available containers processes.
+Gets the number of available container processes.
 
 """ ->
 function ncontainers()
@@ -198,7 +212,7 @@ end
 @doc """
 ### mem_usage(key::Integer)
 
-Returns the specified container memory usage via SSH.
+Returns the container memory usage via SSH.
 
 ```Example
 mem_usage(2)

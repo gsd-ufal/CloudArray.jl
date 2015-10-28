@@ -5,7 +5,7 @@
 # 
 #         USAGE: ./cloud_setup.sh dns password
 # 
-#   DESCRIPTION: Configure SSH connection to Azure VM
+#   DESCRIPTION: Configures passwordless SSH connections at Azure VM
 # 
 #       OPTIONS: ---
 #  DEPENDENCIES: sshpass
