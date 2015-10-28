@@ -68,9 +68,7 @@ include("CloudArray.jl")
 using CloudArray
 ```
 
-# TODO 
-
-## Features
+## Future Features
 
 * Support other cloud infrastructures
 	* Amazon EC2
@@ -93,6 +91,8 @@ using CloudArray
 * Explicitly release resources (containers and VMs) after usage
 * Use Julia Module to be able to call ```cloud_setup.sh```
 * CloudArrayBox logo transparent
+* Replace `sshpass` by another means to authenticate through SSH
+	* maybe require users' public key?
 
 # Acknowledgements
 
