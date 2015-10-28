@@ -14,14 +14,17 @@
 #  ORGANIZATION: GSD-UFAL
 #       CREATED: 2015-10-04 16:32
 ###=============================================================================
+
+include("Infra.jl")
+
 ###=========================   Environment setup   =============================
 
 #set this as true if you want to get the execution time of the CArray (the default is false), if true our constructors outputs will be
 #data, number of chunks created, time to create the container   eg.: darray,n_containers, time = DArray("floats.txt")
 #if false it will return only the DArray
 local_workers = false
-include("Infra.jl")
 
+using Infra
 @everywhere using DistributedArrays
 
 ###=============================================================================
@@ -213,4 +216,3 @@ DistributedArrays.DArray(input::Array, is_numeric::Bool=true,args...) = begin
 end
 
 ###=============================================================================
-

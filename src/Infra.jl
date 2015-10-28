@@ -19,7 +19,11 @@
 #
 ###=============================================================================
 
-using Requests
+module Infra
+
+export set_host, create_containers, delete_containers, containers, ncontainers, list_containers, mem_usage
+
+using Requests: get, parse
 
 ###== Top-level variables ======================================================
 
@@ -27,12 +31,13 @@ global host=""
 global passwd=""
 const ssh_key=homedir()*"/.ssh/azkey"
 const ssh_pubkey=homedir()*"/.ssh/azkey.pub"
-const carray_folder=Pkg.dir("CloudArray")*"/src" # TODO: make it work git clone
+const carray_dir=Pkg.dir("CloudArray")*"/src"
 
 ###=============================================================================
 
-# TODO: using module to make this call only at pre-compile time 
-run(`chmod +x $(carray_folder)/cloud_setup.sh`)
+function __init__()
+    run(`chmod +x $(carray_dir)/cloud_setup.sh`)
+end
 
 type Container # Abstraction for Docker container
           cid::AbstractString
@@ -67,7 +72,7 @@ set_host("cloudarray01.cloudapp.net","password")
 ```
 """ ->
 function set_host(h::AbstractString,p::AbstractString)
-    reply = success(`$(carray_folder)/cloud_setup.sh $h $p`) # set up ssh. if errors occurs, return false
+    reply = success(`$(carray_dir)/cloud_setup.sh $h $p`) # set up ssh. if errors occurs, return false
     if (reply)
         global host=h
         global passwd=p
@@ -204,4 +209,6 @@ function mem_usage(key::Integer)
     memory = readall(`ssh -i $ssh_key dockeru@$host "cat /sys/fs/cgroup/memory/docker/$(container.cid)/memory.usage_in_bytes"`)
     parse(Int,memory)/10^6 # convert byte to Megabytes (MB)
     # returns float
+end
+
 end
