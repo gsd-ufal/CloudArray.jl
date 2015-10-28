@@ -1,4 +1,4 @@
-# Overview 
+# Overview
 
 **CloudArray** is a programming abstraction that eases big data programming in the cloud. CloudArray loads data from files then books and configures the right amount of resources (VMs, containers) able to process it. Data loading and resource management are entirely automatic and performed on-demand. 
 
@@ -8,7 +8,7 @@ CloudArray builds on top of [Julia](http://julialang.org) native [DistributedArr
 
 Therefore, existent codes that use DistributedArrays don't need to be adapted in order to use CloudArray. You just need to include CloudArray and use your cloud account, no need to manually interact with your cloud provider.
 
-You are very welcome to [**try CloudArray from CloudArrayBox**](http:/cloudarraybox.cloudapp.net/), a Web front end hosted at Azure.
+You are very welcome to [**<span style="color:red">try CloudArray from CloudArrayBox</span>**](http:/cloudarraybox.cloudapp.net/), a Web front end hosted at Azure.
 
 
 # Architecture

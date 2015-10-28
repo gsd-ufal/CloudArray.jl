@@ -27,11 +27,12 @@ global host=""
 global passwd=""
 const ssh_key=homedir()*"/.ssh/azkey"
 const ssh_pubkey=homedir()*"/.ssh/azkey.pub"
+const carray_folder=Pkg.dir("CloudArray")*"/src" # TODO: make it work git clone
 
 ###=============================================================================
 
 # TODO: using module to make this call only at pre-compile time 
-run(`chmod +x $(Pkg.dir("CloudArray"))/src/cloud_setup.sh`)
+run(`chmod +x $(carray_folder)/cloud_setup.sh`)
 
 type Container # Abstraction for Docker container
           cid::AbstractString
@@ -66,7 +67,7 @@ set_host("cloudarray01.cloudapp.net","password")
 ```
 """ ->
 function set_host(h::AbstractString,p::AbstractString)
-    reply = success(`./cloud_setup.sh $h $p`) # set up ssh. if errors occurs, return false
+    reply = success(`$(carray_folder)/cloud_setup.sh $h $p`) # set up ssh. if errors occurs, return false
     if (reply)
         global host=h
         global passwd=p
