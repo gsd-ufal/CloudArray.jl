@@ -23,15 +23,72 @@ CloudArray design is composed by two layers (c.f. Figure Architecture):
 
 # Usage
 
-## Main constructor
+## Main constructors
 
-CloudArray main constructor is very simple:
+CloudArray main constructors are very simple and can be created by using an `Array` or a file.
 
-```julia
+### Creating a CloudArray from an `Array`
+
+You just need to tell `DArray` constructor which `Array` should be used to constructu your CloudArray:
+
+```
+DArray(Array(...))
+```
+
+#### Example 
+
+In this example, we first create the array `arr` with 100 random numbers then we create a CloudArray with the `arr` data:
+
+```Julia
+arr = rand(100)
+cloudarray_from_array = DArray(arr) # will take less than one minute
+```
+
+
+### Creating a CloudArray from a file
+
+If you are dealing with big data, i.e., your RAM memory is not enough to store your data, you can create a CloudArray from a file.
+
+```Julia
 DArray(file_path)
 ```
 
-```file_path``` is the path to a text file which stores one float number per line. All lines will be used to  fill DArray elements sequentially. This constructor ignores empty lines.
+```file_path``` is the path to a text file in your local or distributed file system. All lines will be used to fill `DArray` elements sequentially. This constructor ignores empty lines.
+
+
+#### Example 
+
+Let's first create a simple text file with 100 random numbers. 
+
+```Julia
+f = open("data.txt","w+")
+for i=1:100
+    if i==100
+        write(f,"$(rand())")
+    else
+        write(f,"$(rand())\n")
+    end    
+end
+close(f)
+```
+
+Then we create a CloudArray with `data.txt` file.
+
+```Julia
+cloudarray_from_file = DArray("data.txt")
+```
+
+You don't really need to know it, but if you are curious on how your data is stored, you can get further information such as:
+
+```Julia
+@show cloudarray_from_array.chunks
+@show cloudarray_from_array.cuts
+@show cloudarray_from_array.dims
+@show cloudarray_from_array.indexes
+@show cloudarray_from_array.pids
+```
+
+Please read [DistributedArrays documentation](https://github.com/JuliaParallel/DistributedArrays.jl) to better understand these low-level details if you want.
 
 ## Core constructor
 
@@ -49,8 +106,10 @@ Arguments are:
 
 ## Example
 
-```julia
-# TODO
+As follows, we create a CloudArray by using the `data.txt` file which holds numeric values (then second argument is `true`) and we 
+
+```Julia
+custom_cloudarray_from_file = DArray("data.txt", true, 1000)
 ```
 
 # Installation
