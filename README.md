@@ -123,7 +123,6 @@ If you need to use CloudArray from your computer with your own cloud provider, y
 
 ```Julia
 Pkg.clone("https://github.com/gsd-ufal/CloudArray.jl.git")
-include("CloudArray.jl")
 using CloudArray
 ```
 
