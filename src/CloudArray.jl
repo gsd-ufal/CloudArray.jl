@@ -25,6 +25,7 @@
 @everywhere using DistributedArrays
 include("Infra.jl")
 
+#You can set this var as true to test the cloudarray without the Infra.jl management. Keep in mind that instead of using the cloud to share your data, it will use localprocs with addprocs(1). This is only for tests purposes.
 local_workers = false
 
 
@@ -131,11 +132,6 @@ DistributedArrays.DArray(input::AbstractArray) = begin distribute_cloud(input) e
 ###=========================   Core Constructors   =============================
 
 
-
-
-
-
-
 @doc """
 Core constructor of the CloudArray
 
@@ -148,7 +144,7 @@ Creates a CloudArray from a task. The task must generate data (lines) per consum
 
 This constructor was created with tasks to make easier to tune a custom CloudArray. The user just needs to create a task which generates the lines of the CloudArray by each call, e.g.: `task_from_array(...)` and `task_from_text(...)`.
 """->
-function carray_from_task(generator::Task=task_from_text("floats.txt"), is_numeric::Bool=true, chunk_max_size::Int=1024*1024,debug::Bool=false)
+function carray_from_task(generator::Task=task_from_text("floats.txt"), chunk_max_size::Int=1024*1024; is_numeric::Bool=true, debug::Bool=false)
 	
 	plot_data =  []
 	containers = []
@@ -201,6 +197,8 @@ function carray_from_task(generator::Task=task_from_text("floats.txt"), is_numer
 end
 
 
+
+
 ###=============================================================================
 ###=========================   Constructors   ==================================
 
@@ -212,7 +210,7 @@ DistributedArrays.DArray(input::AbstractString, args...) = begin
 	return	carray_from_task(task_from_text(input), args...)
 end
 
-DistributedArrays.DArray(input::Array, is_numeric::Bool=true,args...) = begin
+DistributedArrays.DArray(input::Array, args...) = begin
 	return	carray_from_task(task_from_array(input), is_numeric, args...)
 end
 
