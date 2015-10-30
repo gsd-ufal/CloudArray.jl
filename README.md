@@ -1,6 +1,6 @@
 # Overview
 
-**CloudArray** is a programming abstraction that eases big data programming in the cloud. CloudArray loads data from files then books and configures the right amount of resources (VMs, containers) able to process it. Data loading and resource management are entirely automatic and performed on-demand. 
+**CloudArray** ([**<span style="color:blue">try it here!</span>**](http:/cloudarraybox.cloudapp.net/)) is a programming abstraction that eases big data programming in the cloud. CloudArray loads data from files then books and configures the right amount of resources (VMs, containers) able to process it. Data loading and resource management are entirely automatic and performed on-demand. 
 
 CloudArray builds on top of [Julia](http://julialang.org) native [DistributedArrays](https://github.com/JuliaParallel/DistributedArrays.jl) abstraction, a multi-dimensional array whose data is transparently stored at distributed computers. Indeed, _a CloudArray is a DistributedArray whose data and resource managements are automatic_ as the figure bellow illustrates: data load, VM booking, Julia workers configuration on top of Docker containers. 
 
@@ -20,16 +20,74 @@ CloudArray design is composed by two layers (c.f. Figure Architecture):
 	
 ![CloudArray Architecture](docs/figures/cloudarray_layers.png "CloudArray Architecture")
 
+# Installation
+
+### Requirements
+
+#### Julia 0.4
+
+[Download Julia 0.4](http://julialang.org/downloads/)
+
+#### `sshpass`
+
+Debian-based Linux distros as Ubuntu or through 
+
+```
+sudo apt-get install sshpass 
+```
+
+OS X through [macports](http://macports.org):
+
+```
+sudo port install sshpass
+```
 
 # Usage
 
+First load CloudArray package:
+
+```Julia
+using CloudArray
+```
+Then tell CloudAarray the machine address and the password to passwordless SSH login:
+
+
+```Julia
+set_host(host_address,ssh_password)
+```
+
+To use CloudArrayBox VMs to test CloudArray use the following parameters:
+
+```Julia
+set_host("cloudarray01.cloudapp.net","cloudarray@")
+```
+
+## Execution environment
+
+### CloudArrayBox: Master and Workers
+
+You may [**try CloudArray from your browser (CloudArrayBox)**](http:/cloudarraybox.cloudapp.net/), without installing any software at all. Just login with your Google account and run both Julia interface (Master) and cloud processing backend (Workers). 
+
+
+We just kindly ask you to not overload our few Azure VMs which are available to Julia community to test CloudArray for free. In other words, please do not run large parallel or high-processing codes.
+
+### Master at your computer and Workers at CloudArrayBox
+
+You can also use CloudArray your computer with your local Julia 0.4 installation ([see installation instructions]([Julia 0.4](http://julialang.org/downloads/))) and use CloudArrayBox to deploy Workers.
+
+### Custom runtime environment
+
+Otherwise, you can define a customized runtime environment with your own cloud provider having Master and Workers configured as you prefer.
+
+
 ## Main constructors
+
 
 CloudArray main constructors are very simple and can be created by using an `Array` or a file.
 
 ### Creating a CloudArray from an `Array`
 
-You just need to tell `DArray` constructor which `Array` should be used to constructu your CloudArray:
+You just need to tell `DArray` constructor which `Array` should be used to construct your CloudArray:
 
 ```
 DArray(Array(...))
@@ -78,18 +136,6 @@ Then we create a CloudArray with `data.txt` file.
 cloudarray_from_file = DArray("data.txt")
 ```
 
-You don't really need to know it, but if you are curious on how your data is stored, you can get further information such as:
-
-```Julia
-@show cloudarray_from_array.chunks
-@show cloudarray_from_array.cuts
-@show cloudarray_from_array.dims
-@show cloudarray_from_array.indexes
-@show cloudarray_from_array.pids
-```
-
-Please read [DistributedArrays documentation](https://github.com/JuliaParallel/DistributedArrays.jl) to better understand these low-level details if you want.
-
 ## Core constructor
 
 If you want to tune your CloudArray, you can directly use the CloudArray core constructor:
@@ -106,25 +152,33 @@ Arguments are:
 
 ## Example
 
-As follows, we create a CloudArray by using the `data.txt` file which holds numeric values (then second argument is `true`) and we 
+As follows, we create a CloudArray by using the `data.txt` file which holds numeric values, then second argument is set to `true`. We'll set the third argument (`chunk_max_size`) to `500` so DArray chunks will not have more than 500 bytes each.
 
 ```Julia
-custom_cloudarray_from_file = DArray("data.txt", true, 1000)
+custom_cloudarray_from_file = DArray("data.txt", true, 500)
 ```
 
-# Installation
-
-You may [**try CloudArray from CloudArrayBox**](http:/cloudarraybox.cloudapp.net/), without installing any software at all. Just login with your Google account and run some examples.
-
-If you need to use CloudArray from your computer with your own cloud provider, you can easily install and use CloudArray as explained next.
-
-* Install [Julia 0.4](http://julialang.org/downloads/)
-* From your Julia console, run:
+Now let's define and perform a parallel reduction at the just-created CloudArray:
 
 ```Julia
-Pkg.clone("https://github.com/gsd-ufal/CloudArray.jl.git")
-using CloudArray
+parallel_reduce(f,darray) = reduce(f, map(fetch, { @spawnat p reduce(f, localpart(darray)) for p in workers()} ))
 ```
+
+The result is the sum of all values of `custom_cloudarray_from_file`. Each DArray chunk performed in parallel the sum of the part of the DArrau it holds. The result is sent to the Master which performs the final sum. The function `map` is used to get the values with the `fetch` function.
+
+
+You don't really need to know it, but if you are curious on how your data is stored, you can get further information such as:
+
+```Julia
+@show custom_cloudarray_from_file.chunks
+@show custom_cloudarray_from_file.cuts
+@show custom_cloudarray_from_file.dims
+@show custom_cloudarray_from_file.indexes
+@show custom_cloudarray_from_file.pids
+```
+
+Please read [DistributedArrays documentation](https://github.com/JuliaParallel/DistributedArrays.jl) to better understand these low-level details if you want.
+
 
 ## Future Features
 
