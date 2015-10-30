@@ -102,6 +102,12 @@ arr = rand(100)
 cloudarray_from_array = DArray(arr) # will take less than one minute
 ```
 
+We can now access any `cloudarray_from_array` value as it would be a local array:
+
+```Julia
+cloudarray_from_array[57]
+```
+
 
 ### Creating a CloudArray from a file
 
@@ -136,6 +142,14 @@ Then we create a CloudArray with `data.txt` file.
 cloudarray_from_file = DArray("data.txt")
 ```
 
+Let's perform a sum operation at `cloudarray_from_file`:
+
+```Julia
+sum(cloudarray_from_file)
+```
+
+This sum was performed locally at the Master, you can exploit DArray fully parallelism with further functions such as parallel Maps (`pmap`) and Reductions. See [here more information on Parallel programming in Julia](http://docs.julialang.org/en/latest/manual/parallel-computing/). 
+
 ## Core constructor
 
 If you want to tune your CloudArray, you can directly use the CloudArray core constructor:
@@ -150,7 +164,7 @@ Arguments are:
 * ```chunk_max_size``` sets the maximum size that is allowed for each DArray chunk.
 * ```debug``` enables debug mode.
 
-## Example
+### Example
 
 As follows, we create a CloudArray by using the `data.txt` file which holds numeric values, then second argument is set to `true`. We'll set the third argument (`chunk_max_size`) to `500` so DArray chunks will not have more than 500 bytes each.
 
