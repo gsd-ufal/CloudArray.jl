@@ -158,10 +158,11 @@ As follows, we create a CloudArray by using the `data.txt` file which holds nume
 custom_cloudarray_from_file = DArray("data.txt", true, 500)
 ```
 
-Now let's define and perform a parallel reduction at the just-created CloudArray:
+Now let's define and perform a [parallel reduction](https://www.youtube.com/watch?v=JoRn4ryMclc) at the just-created CloudArray:
 
 ```Julia
 parallel_reduce(f,darray) = reduce(f, map(fetch, { @spawnat p reduce(f, localpart(darray)) for p in workers()} ))
+parallel_reduce(+,custom_cloudarray_from_file)
 ```
 
 The result is the sum of all values of `custom_cloudarray_from_file`. Each DArray chunk performed in parallel the sum of the part of the DArrau it holds. The result is sent to the Master which performs the final sum. The function `map` is used to get the values with the `fetch` function.
