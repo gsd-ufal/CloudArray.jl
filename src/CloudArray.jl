@@ -211,7 +211,7 @@ DistributedArrays.DArray(input::AbstractString, args...) = begin
 end
 
 DistributedArrays.DArray(input::Array, args...) = begin
-	return	carray_from_task(task_from_array(input), is_numeric, args...)
+	return	carray_from_task(task_from_array(input), is_numeric=true, args...)
 end
 
 ###=============================================================================
