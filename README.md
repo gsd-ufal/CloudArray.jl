@@ -212,6 +212,7 @@ Please read [DistributedArrays documentation](https://github.com/JuliaParallel/D
 * Use Azure REST API
 * Redundancy: if Julia fails, it removes containers (mask this fault)
 * Create tests
+* Use [@acc](https://github.com/IntelLabs/ParallelAccelerator.jl) to improve performance
 
 ## BUGFIX
 
