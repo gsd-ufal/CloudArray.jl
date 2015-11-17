@@ -26,7 +26,7 @@
 include("Infra.jl")
 
 #You can set this var as true to test the cloudarray without the Infra.jl management. Keep in mind that instead of using the cloud to share your data, it will use localprocs with addprocs(1). This is only for tests purposes.
-local_workers = true
+local_workers = false
 
 
 ###=============================================================================
