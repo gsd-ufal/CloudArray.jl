@@ -79,7 +79,7 @@ for i=1:chunks
 	for j=1:executions
 	
 		println("___________________")
-		println("Test loop with",i," cores number: ",j," out of",executions,"")
+		println("Test loop with ",i," cores number: ",j," out of ",executions,"")
 		#println("\nTest call ",j," out of ",executions,"\n Starting carray using ",i," chunks")
 		println("___________________")
 

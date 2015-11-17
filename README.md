@@ -204,7 +204,6 @@ Please read [DistributedArrays documentation](https://github.com/JuliaParallel/D
 * Provide different QoS
 	* E.g., Pricy and fastest vs. Cheapest and not so fast
 * Add the following containers monitoring functions:
-	* ```cpu_usage(key::Integer)```
 	* ```io_usage(key::Integer)```
 * Let users define which CSV separator should be used
 * RESTful API
