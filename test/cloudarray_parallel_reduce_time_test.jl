@@ -34,7 +34,8 @@ const _PBYTE_ = 1024_GBYTE_
 #TODO passar essas variáveis para o usuário como parâmetro
 #TODO criar um help
 
-executions=15
+executions= 1
+chunks = 4
 #Input file. You also can use or generate an Array, just like this ---> input = [1:100]
 input = "input_float_test.txt" 
 
@@ -55,6 +56,7 @@ parallel_reduce(f,darray) = reduce(f, map(fetch, { @spawnat p reduce(f, localpar
 
 darray = dzeros(1)
 
+
 #Output data treatment
 commit = chomp(readall(`git log --format="%H" -n 1 `))
 mkpath(string(output_folder,"/",input))
@@ -66,47 +68,55 @@ output_file = open(path,"a")
 input_file = open(input)
 input_size = stat(input_file).size
 close(input_file)
-chunk_size = input_size*2 #one extra KB
+chunk_size = input_size
 
 
 #It loops 'execution' times and in each iteration it uses as many chunks as the iteration number.
 #eg in iteration 4 it will create a CloudArray wit 4 chunks and in iteration 2 it will create a carray with 2 chunks
 #Note: for some values the number may be shifted by +-1
-for i=1:executions
+for i=1:chunks
+	eval_time = Array(Float64,1)
+	for j=1:executions
 	
-	println("___________________")
-	println("\nTest call ",i," out of ",executions,"\nStarting carray with a maximum of ",round(chunk_size/1024),"KB for each chunk by")
-	println("___________________")
+		println("___________________")
+		println("Test loop with",i," cores number: ",j," out of",executions,"")
+		#println("\nTest call ",j," out of ",executions,"\n Starting carray using ",i," chunks")
+		println("___________________")
 
-	#creates a cloudarray with the given input	
-	carray  = DArray(input,chunk_size)
-	#Get the amount of chunks in the new carray
-	n_chunks = length(carray.chunks) 
-	println("CArray created with ",n_chunks," chunks of ",chunk_size," for bytes each chunk\n")
+		#creates a cloudarray with the given input	
+		carray  = DArray(input,chunk_size)
+		#Get the amount of chunks in the new carray
+		n_chunks = length(carray.chunks) 
+		println("CArray created with ",n_chunks," chunk(s) of ",chunk_size," for bytes each chunk\n")
 	
-	#Here is what the test happens: it runs the parallel_reduce function and calculates its execution time with tic() toc()
-	tic() 
-	parallel_reduce(+,carray) #Does the evaluation and stores the time
-	eval_time = toc() 
-	
-	#with the evaluation time and the chunks amount in hands we write them to the output log
-	write(output_file,string(n_chunks,",",eval_time,"\n"))		
-        flush(output_file)
-	
-	#we remove all containers and all data in order to free resources and start a new step in the loop
-	delete_containers(all)		
-	
-	gc()	
-	
-	#since we want to use more chunks for each test, we lower the chunk_size for each iteration. The input is always the same(i.e. same size)
-	chunk_size = Int64(trunc(input_size/i)) 
-	#remove all local proccesses
-	rmprocs(workers())
+		#Here is what the test happens: it runs the parallel_reduce function and calculates its execution time with tic() toc()
+		tic() 
+		parallel_reduce(+,carray) 
+		#Does the evaluation and stores the time		
+		push!(eval_time,toc())				 
+		#clear the variable
+		carray = dzeros(1)
+		@everywhere gc()
+
+
+
+		if j==executions
+			
+			#Lower the chunk_size for each iteration to increase the chunks. The input is always the same(i.e. same size)
+			chunk_size = Int64(trunc(chunk_size/i))					
+			
+			eval_mean = mean(eval_time)
+			write(output_file,string(n_chunks,",",eval_mean,"\n"))		
+			flush(output_file)	
+			#we remove all containers and all data in order to free resources and start a new step in the loop
+			delete_containers(all)										
+		end
+
+		
+	end
 end
 
 #flush and close the IO link to the log output
 flush(output_file)
 close(output_file)
-
-
 
