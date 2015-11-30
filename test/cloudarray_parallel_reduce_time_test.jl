@@ -35,7 +35,7 @@ const _PBYTE_ = 1024_GBYTE_
 #TODO criar um help
 
 executions= 1
-chunks = 4
+chunks = 8
 #Input file. You also can use or generate an Array, just like this ---> input = [1:100]
 input = "input_float_test.txt" 
 
@@ -68,7 +68,7 @@ output_file = open(path,"a")
 input_file = open(input)
 input_size = stat(input_file).size
 close(input_file)
-chunk_size = input_size
+chunk_size = Int64(round(input_size*2))
 
 
 #It loops 'execution' times and in each iteration it uses as many chunks as the iteration number.
@@ -79,7 +79,7 @@ for i=1:chunks
 	for j=1:executions
 	
 		println("___________________")
-		println("Test loop with ",i," cores number: ",j," out of ",executions,"")
+		println("Test loop with ",i," cores. Evaluation: ",j," out of ",executions,"")
 		#println("\nTest call ",j," out of ",executions,"\n Starting carray using ",i," chunks")
 		println("___________________")
 
@@ -103,7 +103,12 @@ for i=1:chunks
 		if j==executions
 			
 			#Lower the chunk_size for each iteration to increase the chunks. The input is always the same(i.e. same size)
-			chunk_size = Int64(trunc(chunk_size/i))					
+		
+			if n_chunks > 1
+				chunk_size = Int64(trunc(chunk_size - chunk_size/n_chunks))					
+			else				
+				chunk_size = Int64(trunc(chunk_size/2))
+			end
 			
 			eval_mean = mean(eval_time)
 			write(output_file,string(n_chunks,",",eval_mean,"\n"))		
