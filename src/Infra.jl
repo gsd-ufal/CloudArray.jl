@@ -13,9 +13,6 @@
 #        AUTHOR: Raphael P. Ribeiro <raphaelpr01@gmail.com>
 #  ORGANIZATION: GSD-UFAL
 #       CREATED: 23-09-2015 17:16
-#          TODO:
-#               - Error handling
-#               - Optimize addprocs
 #
 ###=============================================================================
 
@@ -106,10 +103,10 @@ create_containers(1,2,512)  # 1 container with 2 CPU Cores and 512mb RAM
 ```
 """ ->
 function create_containers(n_of_containers::Integer, n_of_cpus=0, mem_size=512)
-        ssh_config = false
         reserved_mem=200 # reserved memory for initializing a worker into a container 
         mem_size=mem_size+reserved_mem
         for i in 1:n_of_containers
+            ssh_config = false
             key = get_next_key()
             port = 3000+get_port()
             # Creating a docker container at VM
