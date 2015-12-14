@@ -35,9 +35,9 @@ const _PBYTE_ = 1024_GBYTE_
 #TODO criar um help
 
 executions= 1
-chunks = 8
+chunks = 2
 #Input file. You also can use or generate an Array, just like this ---> input = [1:100]
-input = "input_float_test.txt" 
+input = "big_input.txt" 
 
 #The max memory size used by the DArray in every containner
 chunk_size = 10_KBYTE_
