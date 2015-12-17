@@ -35,7 +35,7 @@ const _PBYTE_ = 1024_GBYTE_
 #TODO criar um help
 
 executions= 1
-chunks = 2
+chunks = 1
 #Input file. You also can use or generate an Array, just like this ---> input = [1:100]
 input = "big_input.txt" 
 
