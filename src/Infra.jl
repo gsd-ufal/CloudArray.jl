@@ -211,11 +211,36 @@ end
 Returns the container memory usage.
 
 ```Example
-mem_usage(2)
+mem_usage(number_of_container)
 ```
 """ ->
 function mem_usage(key::Integer)
     Docker.stats_container("$url","$(map_containers[key].cid)")["memory_stats"]["usage"]/10^6
+end
+
+@doc """
+### cpu_usage(key::Integer)
+
+Returns the container CPU usage (%).
+
+```Example
+cpu_usage(number_of_container)
+```
+""" ->
+function cpu_usage(key)
+    stats = Docker.stats_container("$url","$(map_containers[key].cid)")
+
+    percpu_usage = stats["cpu_stats"]["cpu_usage"]["percpu_usage"]
+    previousSystem = stats["precpu_stats"]["system_cpu_usage"]
+    previousCPU = stats["precpu_stats"]["cpu_usage"]["total_usage"]
+    totalUsage = stats["cpu_stats"]["cpu_usage"]["total_usage"]
+    systemUsage = stats["cpu_stats"]["system_cpu_usage"]
+    
+    cpuPercent = 0.0
+    cpuDelta = totalUsage - previousCPU
+    systemDelta = systemUsage - previousSystem
+    cpuPercent = (cpuDelta / systemDelta) * length(percpu_usage) * 100.0
+    cpuPercent
 end
 
 @doc """
@@ -224,24 +249,31 @@ end
 Returns the number of kilobytes read and written by the cgroup.
 
 ```Example
-io_usage(2)
+io_usage(number_of_container)
 ```
 """ ->
 function io_usage(key::Integer)
-    w = Docker.stats_container("$url","$(map_containers[key].cid)")["blkio_stats"]["io_service_bytes_recursive"][1]["value"]/10^3   # read
-    r = Docker.stats_container("$url","$(map_containers[key].cid)")["blkio_stats"]["io_service_bytes_recursive"][2]["value"]/10^3   # write
+    stats = Docker.stats_container("$url","$(map_containers[key].cid)")["blkio_stats"]
+    w = stats["io_service_bytes_recursive"][1]["value"]/10^3   # write
+    r = stats["io_service_bytes_recursive"][2]["value"]/10^3   # read
     [w,r]
 end
 
 @doc """
-### io_usage(key::Integer)
+### net_usage(key::Integer)
 
-Returns the container CPU usage.
+Returns networking TX/RX usage.
+
+tx = number of bytes transmitted
+rx = number of bytes reiceved
 
 ```Example
-cpu_usage(2)
+net_usage(number_of_container)
 ```
 """ ->
-function cpu_usage(key::Integer)
-    #TODO
+function net_usage(key::Integer)
+    stats = Docker.stats_container("$url","$(map_containers[key].cid)")["networks"]["eth0"]
+    tx = stats["tx_bytes"]
+    rx = stats["rx_bytes"]
+    [tx,rx]
 end
