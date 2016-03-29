@@ -166,24 +166,26 @@ end
 
 
 @doc """
-```Example
-containers()
-```
+### containers()
 
 Returns the list of all containers' processes identifiers (IDs).
 
+```Example
+containers()
+```
 """ ->
 function containers()
     sort(collect(keys(map_containers)))
 end
 
 @doc """
-```Example
-ncontainers()
-```
+### ncontainers()
 
 Gets the number of available container processes.
 
+```Example
+ncontainers()
+```
 """ ->
 function ncontainers()
     length(map_containers)
@@ -191,12 +193,12 @@ end
 
 @doc """
 ### list_containers()
-```Example
-list_containers()
-```
 
 List container(s) as a sorted list.
 
+```Example
+list_containers()
+```
 """ ->
 function list_containers()
     for key in sort(collect(keys(map_containers)))
