@@ -1,13 +1,15 @@
+#!/opt/julia/bin/julia
+
 ###=============================================================================
 #
 #          FILE: CloudArrayDaemon.jl
 # 
-#         USAGE: include("CloudArrayDaemon.jl")
+#         USAGE: ./cloudarraydaemon &
 # 
 #   DESCRIPTION: it generates unique numbers that will be used by Infra.jl to set as Docker containers' port as each Master launches its own Infra.jl.
 # 
 #       OPTIONS: ---
-#  DEPENDENCIES: ---
+#  DEPENDENCIES: HttpServer.jl (https://github.com/JuliaWeb/HttpServer.jl)
 #          BUGS: ---
 #         NOTES: ---
 #        AUTHOR: André Lage Freitas

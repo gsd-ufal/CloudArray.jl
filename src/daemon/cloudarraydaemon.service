@@ -1,0 +1,14 @@
+[Unit]
+Description=CloudArray daemon service
+Documentation=https://github.com/gsd-ufal/CloudArray.jl
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/cloudarraydaemon.init start
+ExecStop=/usr/bin/cloudarraydaemon.init stop
+Restart=on-failure
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+
