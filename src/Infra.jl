@@ -125,7 +125,7 @@ function create_containers(n_of_containers::Integer, n_of_cpus=0, mem_size=512)
                 end
             end
             println("Adding worker ($key)...")
-            pid = addprocs(["root@$host"]; tunnel=true,sshflags=`-i $ssh_key -p $port`,dir="/opt/julia/bin",exename="/opt/julia/bin/julia")
+            pid = addprocs(["root@$host"]; tunnel=false,sshflags=`-i $ssh_key -p $port`,dir="/opt/julia/bin",exename="/opt/julia/bin/julia")
             map_containers[key] = Container(chomp(container["Id"]),pid[1],n_of_cpus,mem_size) # Adding Container to Dict
         end
 end
