@@ -81,7 +81,7 @@ function get_port()
 end
 
 @doc """
-### create_containers(n_of_containers::Integer, n_of_cpus::Integer, mem_size::Integer)
+### create_containers(n_of_containers::Integer, n_of_cpus::Integer, mem_size::Integer; tunnel::bool)
 
 Launches Docker containers and adds them as Julia workers configured with passwordless SSH.
 
@@ -105,7 +105,7 @@ create_containers(2,3,1024) # 2 containers with 3 CPU Cores and 1gb RAM
 create_containers(1,2,512)  # 1 container with 2 CPU Cores and 512mb RAM
 ```
 """ ->
-function create_containers(n_of_containers::Integer, n_of_cpus=0, mem_size=512)
+function create_containers(n_of_containers::Integer, n_of_cpus=0, mem_size=512;tunnel=false)
         reserved_mem=200 # reserved memory for initializing a worker into a container
         mem_size=mem_size+reserved_mem
         for i in 1:n_of_containers
@@ -125,7 +125,7 @@ function create_containers(n_of_containers::Integer, n_of_cpus=0, mem_size=512)
                 end
             end
             println("Adding worker ($key)...")
-            pid = addprocs(["root@$host"]; tunnel=false,sshflags=`-i $ssh_key -p $port`,dir="/opt/julia/bin",exename="/opt/julia/bin/julia")
+            pid = addprocs(["root@$host"];tunnel=tunnel,sshflags=`-i $ssh_key -p $port`,dir="/opt/julia/bin",exename="/opt/julia/bin/julia")
             map_containers[key] = Container(chomp(container["Id"]),pid[1],n_of_cpus,mem_size) # Adding Container to Dict
         end
 end
