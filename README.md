@@ -322,4 +322,4 @@ net_usage(number_of_container)
 
 # Acknowledgements
 
-CloudArray is developed by the LaCCAN lab at the Computing Institute of the Federal University of Alagoas (Brazil). CloudArray is founded by [Microsoft Azure Research Award](http://research.microsoft.com/en-us/projects/azure/), Brazilian National Council for Scientific and Technological Development (CNPq), and Alagoas Research Foundation (FAPEAL).
+CloudArray is developed by the LaCCAN lab at the Computing Institute of the Federal University of Alagoas (Brazil). CloudArray is funded by [Microsoft Azure Research Award](http://research.microsoft.com/en-us/projects/azure/), Brazilian National Council for Scientific and Technological Development (CNPq), and Alagoas Research Foundation (FAPEAL).
