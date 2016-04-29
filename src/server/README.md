@@ -5,11 +5,11 @@ Recommended System: Debian jessie
 * 1. Run the install script:
 
 ```
-./install.sh
+$ ./install.sh
 ```
 
 * 2. Add a docker user
 
 ```
-useradd docker -s /bin/bash -m -g docker
+$ useradd docker -s /bin/bash -m -g docker
 ```
