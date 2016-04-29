@@ -70,7 +70,7 @@ function set_host(h::AbstractString,p::AbstractString)
         global passwd=p
         true
     else
-        println("ERROR: There is an error during SSH configuration. Please see the log for more details: cloud_setup.log")
+        error("There is an error during SSH configuration. Please see the log for more details: cloud_setup.log")
         false
     end
 end
@@ -113,19 +113,22 @@ function create_containers(n_of_containers::Integer, n_of_cpus=0, mem_size=512;t
             key = get_next_key()
             port = 3000+get_port()
             # Creating a docker container at VM
-            println("Creating container ($key)...")
+            info("Creating container ($key)...")
             container = Docker.create_container("$url","cloudarray:latest",memory=mem_size*(10^6),portBindings=[22,"$port"])
             Docker.start_container("$url",container["Id"])
+            info("Creating container ($key)... OK")
             # Configuring ssh without password (transfer public key to container)
-            println("SSH configuration ($key)... ")
+            info("SSH configuration ($key)... ")
             while !ssh_config
                 ssh_config = success(pipeline(`cat $ssh_pubkey`,`sshpass -p $passwd ssh -o StrictHostKeyChecking=no -p $port root@$host 'umask 077; mkdir -p ~/.ssh; cat >> ~/.ssh/authorized_keys'`)) # if ssh configuration is successful: return true or false
                 if !ssh_config
-                    println("SSH configuration ($key) failed! Trying again...")
+                    info("SSH configuration ($key) failed! Trying again...")
                 end
             end
-            println("Adding worker ($key)...")
+            info("SSH configuration ($key)... OK")
+            info("Adding worker ($key)...")
             pid = addprocs(["root@$host"];tunnel=tunnel,sshflags=`-i $ssh_key -p $port`,dir="/opt/julia/bin",exename="/opt/julia/bin/julia")
+            info("Adding worker ($key)... OK")
             map_containers[key] = Container(chomp(container["Id"]),pid[1],n_of_cpus,mem_size) # Adding Container to Dict
         end
 end

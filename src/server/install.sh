@@ -34,16 +34,28 @@ function julia_install()
 	echo "source /etc/environment" >> /root/.bashrc
 }
 
+function daemon_install()
+{
+    apt-get install -y cmake
+
+    /opt/julia/bin/julia -e "Pkg.add(\"Requests\")"
+    /opt/julia/bin/julia -e "Pkg.build(\"MbedTLS\")"
+    /opt/julia/bin/julia -e "Pkg.add(\"HttpServer\")"
+    cp daemon/cloudarraydaemon /usr/bin/cloudarraydaemon && chmod +x /usr/bin/cloudarraydaemon
+    cp daemon/cloudarraydaemon.init /usr/bin/cloudarraydaemon.init && chmod +x /usr/bin/cloudarraydaemon.init
+    cp daemon/cloudarraydaemon.service /etc/systemd/system/cloudarraydaemon.service
+    systemctl daemon-reload && systemctl enable cloudarraydaemon && systemctl start cloudarraydaemon
+}
+
 if ! which julia >/dev/null; then
     julia_install
 fi
 
-apt-get install -y cmake
+daemon_install
 
-/opt/julia/bin/julia -e "Pkg.add(\"Requests\")"
-/opt/julia/bin/julia -e "Pkg.build(\"MbedTLS\")"
-/opt/julia/bin/julia -e "Pkg.add(\"HttpServer\")"
-cp cloudarraydaemon /usr/bin/cloudarraydaemon && chmod +x /usr/bin/cloudarraydaemon
-cp cloudarraydaemon.init /usr/bin/cloudarraydaemon.init && chmod +x /usr/bin/cloudarraydaemon.init
-cp cloudarraydaemon.service /etc/systemd/system/cloudarraydaemon.service
-systemctl daemon-reload && systemctl enable cloudarraydaemon && systemctl start cloudarraydaemon
+if ! which docker >/dev/null; then
+    curl -fsSL https://get.docker.com/ | sh
+    service docker stop
+    sed -i "/DOCKER_OPTS=/c\DOCKER_OPTS='-H tcp://0.0.0.0:4243 -H unix:///var/run/docker.sock'" /etc/init.d/docker
+    service docker start
+fi
