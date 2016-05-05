@@ -59,7 +59,7 @@ set_host(host_address,ssh_password)
 To use CloudArrayBox VMs to test CloudArray use the following parameters:
 
 ```Julia
-set_host("cloudarray01.cloudapp.net","cloudarray@")
+set_host("cloudarray.ddns.net","cloudarray@")
 ```
 
 ## Execution environment
