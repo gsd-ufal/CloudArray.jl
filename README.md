@@ -1,3 +1,10 @@
+#Table of Contents
+
+1. [Overview](https://github.com/gsd-ufal/CloudArray.jl#overview)
+2. [Architecture](https://github.com/gsd-ufal/CloudArray.jl#architecture)
+3. [Installation](https://github.com/gsd-ufal/CloudArray.jl#installation)
+4. [Usage](https://github.com/gsd-ufal/CloudArray.jl#usage)
+
 # Overview
 
 **CloudArray** ([**<span style="color:blue">try it here!</span>**](http:/cloudarraybox.cloudapp.net/)) is a programming abstraction that eases big data programming in the cloud. CloudArray loads data from files then books and configures the right amount of resources (VMs, containers) able to process it. Data loading and resource management are entirely automatic and performed on-demand. 
