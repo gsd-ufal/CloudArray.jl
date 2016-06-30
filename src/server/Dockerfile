@@ -4,7 +4,6 @@
 FROM ubuntu:14.04 
 
 MAINTAINER Raphael P Ribeiro <raphaelpr01@gmail.com>
-RUN sudo apt-get install -y software-properties-common
 
 #install julia and ssh, if you need more packages for you application, you can add it with \ package_name
 RUN apt-get update && apt-get install -y \
