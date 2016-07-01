@@ -36,8 +36,8 @@ function julia_install()
 
 function daemon_install()
 {
-    apt-get install -y cmake
-
+    apt-get install -y cmake sshpass
+    /opt/julia/bin/julia -e "Pkg.clone(\"https://github.com/Keno/Docker.jl\")"
     /opt/julia/bin/julia -e "Pkg.add(\"Requests\")"
     /opt/julia/bin/julia -e "Pkg.build(\"MbedTLS\")"
     /opt/julia/bin/julia -e "Pkg.add(\"HttpServer\")"

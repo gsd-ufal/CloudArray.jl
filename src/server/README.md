@@ -13,3 +13,9 @@ $ sudo ./install.sh
 ```
 $ useradd dockeru -s /bin/bash -m -g docker
 ```
+
+* 3. Build CloudArray image
+
+```
+$ docker build -t cloudarray .
+```
