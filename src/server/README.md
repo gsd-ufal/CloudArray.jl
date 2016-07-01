@@ -1,15 +1,15 @@
 # Preparing a CloudArray Server
 
-Recommended System: Debian jessie
+Recommended System: Ubuntu 14.04 LTS
 
 * 1. Run the install script:
 
 ```
-$ ./install.sh
+$ sudo ./install.sh
 ```
 
 * 2. Add a docker user
 
 ```
-$ useradd docker -s /bin/bash -m -g docker
+$ useradd dockeru -s /bin/bash -m -g docker
 ```

@@ -17,7 +17,7 @@
 #       CREATED: 2016-03-30 11:00
 ###=============================================================================
 
- Make sure only root can run the script
+# Make sure only root can run the script
 if [ "$(id -u)" != "0" ]; then
    echo "This script must be run as root" 1>&2
    exit 1
