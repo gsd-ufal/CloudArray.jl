@@ -60,13 +60,13 @@ Then tell CloudAarray the machine address and the password to passwordless SSH l
 
 
 ```Julia
-set_host(host_address,ssh_password)
+CloudArray.set_host(host_address,ssh_password)
 ```
 
 To use CloudArrayBox VMs to test CloudArray use the following parameters:
 
 ```Julia
-set_host("cloudarray.ddns.net","cloudarray@")
+CloudArray.set_host("cloudarray.ddns.net","cloudarray@")
 ```
 
 ## Execution environment
@@ -106,7 +106,7 @@ In this example, we first create the array `arr` with 100 random numbers then we
 
 ```Julia
 arr = rand(100)
-cloudarray_from_array = DArray(arr) # will take less than one minute
+cloudarray_from_array = CloudArray.DArray(arr) # will take less than one minute
 ```
 
 We can now access any `cloudarray_from_array` value as it would be a local array:
@@ -121,7 +121,7 @@ cloudarray_from_array[57]
 If you are dealing with big data, i.e., your RAM memory is not enough to store your data, you can create a CloudArray from a file.
 
 ```Julia
-DArray(file_path)
+CloudArray.DArray(file_path)
 ```
 
 ```file_path``` is the path to a text file in your local or distributed file system. All lines will be used to fill `DArray` elements sequentially. This constructor ignores empty lines.
@@ -146,7 +146,7 @@ close(f)
 Then we create a CloudArray with `data.txt` file.
 
 ```Julia
-cloudarray_from_file = DArray("data.txt")
+CloudArray.cloudarray_from_file = DArray("data.txt")
 ```
 
 Let's perform a sum operation at `cloudarray_from_file`:
@@ -212,7 +212,7 @@ Configures passwordless SSH connections at host `h` whose password is `p`.
 This function calls the `cloud_setup.sh` script which requires `sshpass`.
 
 ```Example
-set_host("cloudarray.cloudapp.net","password")
+CloudArray.set_host("cloudarray.cloudapp.net","password")
 ```
 
 
