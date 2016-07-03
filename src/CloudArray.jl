@@ -176,7 +176,7 @@ module CloudArray
             tic()	
             if !local_workers
 
-                create_containers(1,0,250)		
+                create_containers(1,0,250,tunnel=true)		
                 #push!(plot_data, [time;workers])
             else			
                 addprocs(1)			
