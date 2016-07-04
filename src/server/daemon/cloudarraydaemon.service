@@ -5,6 +5,7 @@ Documentation=https://github.com/gsd-ufal/CloudArray.jl
 [Service]
 Type=simple
 ExecStart=/usr/bin/cloudarraydaemon.init start
+ExecRestart=/usr/bin/cloudarraydaemon.init restart
 ExecStop=/usr/bin/cloudarraydaemon.init stop
 Restart=on-failure
 RemainAfterExit=yes

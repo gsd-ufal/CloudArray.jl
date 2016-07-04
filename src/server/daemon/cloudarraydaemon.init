@@ -63,6 +63,7 @@ case "$1" in
     ;;
   restart)
     stop
+    sleep 1
     start
     ;;
   *)

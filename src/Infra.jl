@@ -70,7 +70,7 @@ function set_host(h::AbstractString,p::AbstractString)
         global passwd=p
         true
     else
-        println("ERROR: There is an error during SSH configuration. Please see the log for more details: cloud_setup.log")
+        error("There is an error during SSH configuration. Please see the log for more details: cloud_setup.log")
         false
     end
 end
@@ -105,7 +105,7 @@ create_containers(2,3,1024) # 2 containers with 3 CPU Cores and 1gb RAM
 create_containers(1,2,512)  # 1 container with 2 CPU Cores and 512mb RAM
 ```
 """ ->
-function create_containers(n_of_containers::Integer, n_of_cpus="", mem_size=512;tunnel=false)
+function create_containers(n_of_containers::Integer, n_of_cpus=0, mem_size=512;tunnel=false)
         reserved_mem=200 # reserved memory for initializing a worker into a container
         mem_size=mem_size+reserved_mem
         for i in 1:n_of_containers
@@ -113,19 +113,22 @@ function create_containers(n_of_containers::Integer, n_of_cpus="", mem_size=512;
             key = get_next_key()
             port = 3000+get_port()
             # Creating a docker container at VM
-            println("Creating container ($key)...")
-            container = Docker.create_container("$url","cloudarray:latest",memory=mem_size*(10^6),cpuSets="$n_of_cpus",portBindings=[22,"$port"])
+            info("Creating container ($key)...")
+            container = Docker.create_container("$url","cloudarray:latest",memory=mem_size*(10^6),portBindings=[22,"$port"])
             Docker.start_container("$url",container["Id"])
+            info("Creating container ($key)... OK")
             # Configuring ssh without password (transfer public key to container)
-            println("SSH configuration ($key)... ")
+            info("SSH configuration ($key)... ")
             while !ssh_config
                 ssh_config = success(pipeline(`cat $ssh_pubkey`,`sshpass -p $passwd ssh -o StrictHostKeyChecking=no -p $port root@$host 'umask 077; mkdir -p ~/.ssh; cat >> ~/.ssh/authorized_keys'`)) # if ssh configuration is successful: return true or false
                 if !ssh_config
-                    println("SSH configuration ($key) failed! Trying again...")
+                    info("SSH configuration ($key) failed! Trying again...")
                 end
             end
-            println("Adding worker ($key)...")
+            info("SSH configuration ($key)... OK")
+            info("Adding worker ($key)...")
             pid = addprocs(["root@$host"];tunnel=tunnel,sshflags=`-i $ssh_key -p $port`,dir="/opt/julia/bin",exename="/opt/julia/bin/julia")
+            info("Adding worker ($key)... OK")
             map_containers[key] = Container(chomp(container["Id"]),pid[1],n_of_cpus,mem_size) # Adding Container to Dict
         end
 end
