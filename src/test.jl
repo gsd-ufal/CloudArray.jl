@@ -1,22 +1,21 @@
 using CloudArray
 using DataFrames
 
-tic()
-CloudArray.set_host("cloudarray.ddns.net","cloudarray@")
-host_time=toc()
-
 function run_tests(reps)
-    data = zeros(reps,5)
+    data = zeros(reps,6)
     for i in 1:reps
-        time = CloudArray.create_containers(1,0,512,tunnel=true)
-        push!(time,host_time+sum(time))
-        data[i,1:5] = time
+        tic()
+        CloudArray.set_host("cloudarray.ddns.net","cloudarray@")
+        auth_time=toc()
+        time = CloudArray.create_containers(1,0,512)
+        push!(time,auth_time+sum(time)) # total exec time
+        data[i,1] = auth_time
+        data[i,2:6] = time
     end
     return data
 end
-    
+
 data = run_tests(10)
 data = DataFrame(data)
-#rename!(data,:x1,:execution)
-#rename!(data,:x2,:execution_time)
-writetable("test.csv",data)
+names!(data,[:etapa_1,:etapa_2,:etapa_3,:etapa_4,:etapa_5,:etapa_6])
+writetable("output.csv",data)
