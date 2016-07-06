@@ -1,9 +1,8 @@
-# Run tests
+# How to run the tests
 
 Generate data
 ```
 $ julia run_tests.jl
-
 ```
 
 Plotting data
