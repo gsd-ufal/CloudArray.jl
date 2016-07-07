@@ -1,0 +1,14 @@
+[Unit]
+Description=CloudArray cleaner service
+Documentation=https://github.com/gsd-ufal/CloudArray.jl
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/cloudarraycleaner.init start
+ExecRestart=/usr/bin/cloudarraycleaner.init restart
+ExecStop=/usr/bin/cloudarraycleaner.init stop
+Restart=on-failure
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

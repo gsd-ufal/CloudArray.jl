@@ -41,10 +41,21 @@ function daemon_install()
     /opt/julia/bin/julia -e "Pkg.add(\"Requests\")"
     /opt/julia/bin/julia -e "Pkg.build(\"MbedTLS\")"
     /opt/julia/bin/julia -e "Pkg.add(\"HttpServer\")"
-    cp daemon/cloudarraydaemon /usr/bin/cloudarraydaemon && chmod +x /usr/bin/cloudarraydaemon
-    cp daemon/cloudarraydaemon.init /usr/bin/cloudarraydaemon.init && chmod +x /usr/bin/cloudarraydaemon.init
-    cp daemon/cloudarraydaemon.service /etc/systemd/system/cloudarraydaemon.service
-    systemctl daemon-reload && systemctl enable cloudarraydaemon && systemctl start cloudarraydaemon
+
+    # cloudarraydaemon
+    cp daemons/cloudarraydaemon /usr/bin/cloudarraydaemon && chmod +x /usr/bin/cloudarraydaemon
+    cp daemons/cloudarraydaemon.init /usr/bin/cloudarraydaemon.init && chmod +x /usr/bin/cloudarraydaemon.init
+    cp daemons/cloudarraydaemon.service /etc/systemd/system/cloudarraydaemon.service
+    
+    # cloudarraycleaner
+    cp daemons/cloudarraycleaner /usr/bin/cloudarraycleaner && chmod +x /usr/bin/cloudarraycleaner
+    cp daemons/cloudarraycleaner.init /usr/bin/cloudarraycleaner.init && chmod +x /usr/bin/cloudarraycleaner.init
+    cp daemons/cloudarraycleaner.service /etc/systemd/system/cloudarraycleaner.service
+    
+    # enabling/starting services
+    systemctl daemon-reload
+    systemctl enable cloudarraydaemon && systemctl start cloudarraydaemon
+    systemctl enable cloudarraycleaner && systemctl start cloudarraycleaner
 }
 
 if ! which julia >/dev/null; then
