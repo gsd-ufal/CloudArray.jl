@@ -11,5 +11,5 @@ grid("on")
 tick_params(axis="y", labelsize=font_size)
 tick_params(axis="x", labelsize=font_size)
 
-savefig(string("plot-",time(),".png"))
+savefig(string("plot-",time(),".pdf"))
 PyPlot.close()
