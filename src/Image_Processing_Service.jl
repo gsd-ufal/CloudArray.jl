@@ -27,7 +27,20 @@ function f(a::Real)
  (a[-1,-1]+ a[-1,+1] + a[-1,0] + a[0,+1]+a[0,-1]+a[+1,+1]+a[+1,0]+a[+1,-1])
 end
 
-function process(algorithm=f, summary_size::Tuple{Int64,Int64}=(3,3), roi::Tuple{Int64,Int64}=(6,6), start::Tuple{Int64,Int64} = (3,2)) #roi --> [(x1,y1),(x2,y2)]
+function process(algorithm=f, summary_size::Tuple{Int64,Int64}=(4,4), roi::Tuple{Int64,Int64}=(8,8), start::Tuple{Int64,Int64} = (1,1)) #roi --> [(x1,y1),(x2,y2)]
+
+print("Input size: ",size(dataset))
+print("\n")
+print("Summary size: ",summary_size)
+print("\n")
+print("Roi size: ",roi)
+print("\n")
+print("Starting point: ",start)
+print("\n")
+print("\n")
+print("Input dataset: \n", dataset)
+print("\n\n")
+
 	yRoiLeng = roi[1]
 	xRoiLeng = roi[2]
 	ySummSizeLeng = summary_size[1]
@@ -43,22 +56,57 @@ function process(algorithm=f, summary_size::Tuple{Int64,Int64}=(3,3), roi::Tuple
 	else 
 	#get the roiSubArray from dataset. This subarra is delimited by the size of the window (roi) and the starting index (start)
 	roiSubArray = dataset[start[1]:roi[1]+start[1]-1, start[2]:roi[2]+start[2]-1] 
+	print(roiSubArray)
 	
 
+	resized = Real[]
 
 
+	for (y=1:colStep:size(roiSubArray)[2])
+
+		if (mod(colStep,y) != 0 || y==1)
+			column = Real[]
+
+			for (x=1:rowStep:size(roiSubArray)[1])
+				if (mod(rowStep, x) != 0 || x == 1)
+
+					push!(column, roiSubArray[x,y])
+				end
+			end
+
+			if (y==1) #This is a workarround. Fix it later (flag WK)
+				resized = column
+			end	
+			
+			resized = hcat(resized, column)
+
+			if (y==1) #This is undoing the workarround of flag WK
+				resized = resized[:,2]
+			end
+		end
+	end
+
+	print("\n\n")
+	print("Summary without filter: \n")
+	print(resized)
+	print("\n")
+	
+
+		xSummaryLeng = size(resized)[1]
+		ySummaryLeng = size(resized)[2]
 
 
-		buffer = ones(xRoiLeng,yRoiLeng) 
-		iterations = 2
+		buffer = Array(Real,xSummaryLeng,ySummaryLeng) 
+		iterations = 1
 
 
-	runStencil(buffer, roiSubArray, iterations, :oob_src_zero) do b, a
+	runStencil(buffer, resized, iterations, :oob_src_zero) do b, a
        b[0,0] =  algorithm(a)
        return a, b
     end
     
     print("\n \n")
+    print("Summary with filter (sum of neighbors): \n")
     print(buffer)
     print("\n \n")
     print("\n \n")
