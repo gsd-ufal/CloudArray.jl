@@ -23,97 +23,73 @@ end
 
 
 #Sample algorithm
-function f(a::Real) 
- (a[-1,-1]+ a[-1,+1] + a[-1,0] + a[0,+1]+a[0,-1]+a[+1,+1]+a[+1,0]+a[+1,-1])
+function f(a) 
+(a[-1,-1]+ a[-1,+1] + a[-1,0] + a[0,+1]+a[0,-1]+a[+1,+1]+a[+1,0]+a[+1,-1])
 end
 
-function process(algorithm=f, summary_size::Tuple{Int64,Int64}=(4,4), roi::Tuple{Int64,Int64}=(8,8), start::Tuple{Int64,Int64} = (1,1)) #roi --> [(x1,y1),(x2,y2)]
 
-print("Input size: ",size(dataset))
-print("\n")
-print("Summary size: ",summary_size)
-print("\n")
-print("Roi size: ",roi)
-print("\n")
-print("Starting point: ",start)
-print("\n")
-print("\n")
-print("Input dataset: \n", dataset)
-print("\n\n")
+src_height= 11858
+src_width = 1650
+windowHeight= 11858
+windowWidth = 1650
+zoomHeight  = 11858
+zoomWidth   = 1650
+src = open("SanAnd_05508_10007_005_100114_L090HHHH_CX_01.mlc")
 
-	yRoiLeng = roi[1]
-	xRoiLeng = roi[2]
-	ySummSizeLeng = summary_size[1]
-	xSummSizeLeng = summary_size[2]
-	rowStep = Int64(round(yRoiLeng/ySummSizeLeng))
-	colStep = Int64(round(xRoiLeng/xSummSizeLeng))
 
-	
 
-	if (  (start[1] + roi[1] > length(dataset[:,1])) || 
-		  (start[2] + roi[2] > length(dataset[1,:])) ) 
+function process(algorithm=f, summary_size::Tuple{Int64,Int64}=(4,4), roi::Tuple{Int64,Int64}=(8,8), start::Tuple{Int64,Int64} = (100,10000); debug::Bool=false, img::IOStream=src) 
+
+	#dataset = ones(10,10) #It should be the image. This variable is going to be deleted soon
+
+
+	starting_line = start[1]
+	starting_col = start[2]	
+	starting_pos =  starting_line + (starting_col-1)*src_width
+
+	roi_height = roi[1]
+	roi_width = roi[2]
+
+	summary_height = summary_size[1]
+	summary_width = summary_size[2]
+		
+
+
+
+	row_step = Int64(round(roi_height/summary_height))
+	col_step = Int64(round(roi_width/summary_width))
+
+
+
+	if (  (starting_line + roi_height > src_width) || (starting_col + roi_width > src_height) ) 
 		println("Your region of interest overleaps the image size.")
+		return false
 	else 
-	#get the roiSubArray from dataset. This subarra is delimited by the size of the window (roi) and the starting index (start)
-	roiSubArray = dataset[start[1]:roi[1]+start[1]-1, start[2]:roi[2]+start[2]-1] 
-	print(roiSubArray)
-	
 
-	resized = Real[]
+		roi_subarray = ZoomImage(starting_pos, roi_height, roi_width, summary_height, summary_width, src_height, src_width, src) ##TODO: Fix the ZoomImage function to make it return a matrix instead of an array
 
+		roi_subarray = reshape(roi_subarray, summary_height,summary_width)
 
-	for (y=1:colStep:size(roiSubArray)[2])
-
-		if (mod(colStep,y) != 0 || y==1)
-			column = Real[]
-
-			for (x=1:rowStep:size(roiSubArray)[1])
-				if (mod(rowStep, x) != 0 || x == 1)
-
-					push!(column, roiSubArray[x,y])
-				end
-			end
-
-			if (y==1) #This is a workarround. Fix it later (flag WK)
-				resized = column
-			end	
-			
-			resized = hcat(resized, column)
-
-			if (y==1) #This is undoing the workarround of flag WK
-				resized = resized[:,2]
-			end
+		if(debug)
+			print("Roi\n")
+			show(roi_subarray)
 		end
-	end
 
-	print("\n\n")
-	print("Summary without filter: \n")
-	print(resized)
-	print("\n")
-	
-
-		xSummaryLeng = size(resized)[1]
-		ySummaryLeng = size(resized)[2]
-
-
-		buffer = Array(Real,xSummaryLeng,ySummaryLeng) 
+		buffer = Array(Real,summary_width,summary_height) 
 		iterations = 1
 
+		runStencil(buffer, roi_subarray, iterations, :oob_src_zero) do b, a
+			b[0,0] =  algorithm(a)
+			return a, b
+		end
 
-	runStencil(buffer, resized, iterations, :oob_src_zero) do b, a
-       b[0,0] =  algorithm(a)
-       return a, b
-    end
-    
-    print("\n \n")
-    print("Summary with filter (sum of neighbors): \n")
-    print(buffer)
-    print("\n \n")
-    print("\n \n")
-    print("\n \n")
-	
-    
-    return buffer
+		if (debug) 
+			print("\n \n")
+			print("Summary with filter (sum of neighbors): \n")
+			show(buffer)
+			print("\n \n \n \n \n \n")
+		end
+		return buffer
 	end
 end
 
