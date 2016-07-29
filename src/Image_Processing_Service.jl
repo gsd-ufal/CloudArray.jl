@@ -1,3 +1,7 @@
+using ParallelAccelerator
+using ImageView
+include("/home/naelson/repositories/PolSAR.jl/src/ZoomImage.jl")
+
 #module ImageProcessingService
 function initiate(image_id::Int64, business_model)
 end
@@ -37,11 +41,31 @@ zoomWidth   = 1650
 src = open("SanAnd_05508_10007_005_100114_L090HHHH_CX_01.mlc")
 
 
+function areLimitsWrong(summary_height,src_height,summary_width,src_width,starting_line,roi_height,roi_width,starting_col)
+#checking if the summary overleaps the roi
+	if (summary_height > src_height || summary_width > src_width)
+		println("Your summary size overleaps the ROI size")
+		return true	
+	end
 
-function process(algorithm=f, summary_size::Tuple{Int64,Int64}=(4,4), roi::Tuple{Int64,Int64}=(8,8), start::Tuple{Int64,Int64} = (100,10000); debug::Bool=false, img::IOStream=src) 
+	#Checking if roi_y > src_y
+	if ( (starting_line-1 + roi_height) > src_height)
+		println("Starting line: ",starting_line," Roi Height: ",roi_height," SRC height: ", src_height)
+		println("Your ROI height overleaps the source height")
+		return true
+	end
+		#Checking if roi_x > src_x
+	if (starting_col-1 + roi_width > src_height)
+		println("Your ROI width overleaps the source width")
+		return true
+	end
 
-	#dataset = ones(10,10) #It should be the image. This variable is going to be deleted soon
+	return false
+end
 
+
+
+function process(algorithm=f, summary_size::Tuple{Int64,Int64}=(11858-1,1650-1), roi::Tuple{Int64,Int64}=(11858-1,1650-1), start::Tuple{Int64,Int64} = (1,1); debug::Bool=false, img::IOStream=src) 
 
 	starting_line = start[1]
 	starting_col = start[2]	
@@ -52,48 +76,45 @@ function process(algorithm=f, summary_size::Tuple{Int64,Int64}=(4,4), roi::Tuple
 
 	summary_height = summary_size[1]
 	summary_width = summary_size[2]
-		
-
-
 
 	row_step = Int64(round(roi_height/summary_height))
-	col_step = Int64(round(roi_width/summary_width))
+	col_step = Int64(round(roi_width/summary_width))	
+
+	#TODO put these checks in one function
+	
 
 
 
-	if (  (starting_line + roi_height > src_width) || (starting_col + roi_width > src_height) ) 
-		println("Your region of interest overleaps the image size.")
-		return false
-	else 
+if (areLimitsWrong(summary_height,src_height,summary_width,src_width,starting_line,roi_height,roi_width,starting_col))
+	#The function will print a warning and the program will stop
+else 
+	##TODO: Fix the ZoomImage function to make it return a matrix instead of an array
+	roi_subarray = ZoomImage(starting_pos, roi_height, roi_width, summary_height, summary_width, src_height, src_width, src) 
 
-		roi_subarray = ZoomImage(starting_pos, roi_height, roi_width, summary_height, summary_width, src_height, src_width, src) ##TODO: Fix the ZoomImage function to make it return a matrix instead of an array
 
-		roi_subarray = reshape(roi_subarray, summary_height,summary_width)
+	println("Deu zoom suave")
 
-		if(debug)
-			print("Roi\n")
-			show(roi_subarray)
-		end
+	roi_subarray = reshape(roi_subarray, summary_height,summary_width)
+	println("Deu reshape suave")
+	
 
-		buffer = Array(Real,summary_width,summary_height) 
-		iterations = 1
-
-		runStencil(buffer, roi_subarray, iterations, :oob_src_zero) do b, a
-			b[0,0] =  algorithm(a)
-			return a, b
-		end
-
-		if (debug) 
-			print("\n \n")
-			print("Summary with filter (sum of neighbors): \n")
-			show(buffer)
-			print("\n \n \n \n \n \n")
-		end
-		return buffer
+	buffer = Array(Real,summary_height,summary_width) 
+	iterations = 1
+	println("Criou buffer suave")
+	runStencil(buffer, roi_subarray, iterations, :oob_src_zero) do b, a
+		b[0,0] =  algorithm(a)
+		return a, b
 	end
+
+
+	return buffer
 end
 
-process()
-print("\n")
+
+
+
+end
+
+
 
 #end
