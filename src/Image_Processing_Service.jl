@@ -1,6 +1,7 @@
 using ParallelAccelerator
 using ImageView
 include("/home/naelson/repositories/PolSAR.jl/src/ZoomImage.jl")
+include("/home/naelson/repositories/PolSAR.jl/src/PauliDecompositon.jl")
 
 #module ImageProcessingService
 function initiate(image_id::Int64, business_model)
@@ -28,21 +29,29 @@ end
 
 #Sample algorithm
 function f(a) 
-(a[-1,-1]+ a[-1,+1] + a[-1,0] + a[0,+1]+a[0,-1]+a[+1,+1]+a[+1,0]+a[+1,-1])
+	(a[-1,-1]+ a[-1,+1] + a[-1,0] + a[0,+1]+a[0,-1]+a[+1,+1]+a[+1,0]+a[+1,-1])
 end
 
 
-src_height= 11858
-src_width = 1650
-windowHeight= 11858
-windowWidth = 1650
-zoomHeight  = 11858
-zoomWidth   = 1650
+src_height= 2500
+src_width = 2000
+roiHeight= 2500
+roiWidth = 1600
+zoomHeight  = 1000
+zoomWidth   = 1000
 src = open("SanAnd_05508_10007_005_100114_L090HHHH_CX_01.mlc")
 
 
 function areLimitsWrong(summary_height,src_height,summary_width,src_width,starting_line,roi_height,roi_width,starting_col)
 #checking if the summary overleaps the roi
+print("summary_height: ",summary_height,"\n")
+print("src_height: ",src_height,"\n")
+print("src_width: ",src_width,"\n\n")
+print("starting_col: ",starting_col,"\n")
+print("starting_line: ",starting_line,"\n\n")
+print("roi_width: ",roi_width,"\n")
+print("roi_height: ",roi_height,"\n")
+
 	if (summary_height > src_height || summary_width > src_width)
 		println("Your summary size overleaps the ROI size")
 		return true	
@@ -50,13 +59,14 @@ function areLimitsWrong(summary_height,src_height,summary_width,src_width,starti
 
 	#Checking if roi_y > src_y
 	if ( (starting_line-1 + roi_height) > src_height)
-		println("Starting line: ",starting_line," Roi Height: ",roi_height," SRC height: ", src_height)
+		
 		println("Your ROI height overleaps the source height")
 		return true
 	end
 		#Checking if roi_x > src_x
+		300 + 1600 > 2000
 	if (starting_col-1 + roi_width > src_height)
-		println("Your ROI width overleaps the source width")
+		println("Your ROI width overleaps the source frame.")
 		return true
 	end
 
@@ -65,7 +75,7 @@ end
 
 
 
-function process(algorithm=f, summary_size::Tuple{Int64,Int64}=(11858-1,1650-1), roi::Tuple{Int64,Int64}=(11858-1,1650-1), start::Tuple{Int64,Int64} = (1,1); debug::Bool=false, img::IOStream=src) 
+function process(algorithm=f, summary_size::Tuple{Int64,Int64}=(zoomWidth,zoomHeight), roi::Tuple{Int64,Int64}=(roiHeight-1,roiWidth-1), start::Tuple{Int64,Int64} = (1,1); debug::Bool=false, img::IOStream=src) 
 
 	starting_line = start[1]
 	starting_col = start[2]	
@@ -94,11 +104,16 @@ else
 
 	println("Deu zoom suave")
 
-	roi_subarray = reshape(roi_subarray, summary_height,summary_width)
+	#roi_subarray = reshape(roi_subarray, summary_height,summary_width)
 	println("Deu reshape suave")
+
+	roi_subarray = PauliDecomposition(roi_subarray, roi_subarray, roi_subarray, summary_height, summary_width)
+	
 	
 
 	buffer = Array(Real,summary_height,summary_width) 
+
+
 	iterations = 1
 	println("Criou buffer suave")
 	runStencil(buffer, roi_subarray, iterations, :oob_src_zero) do b, a
@@ -107,7 +122,7 @@ else
 	end
 
 
-	return buffer
+	return roi_subarray
 end
 
 
