@@ -1,3 +1,7 @@
+#Paper
+
+CloudArray paper was published at [IGARSS 2016](http://www.igarss2016.org): **[CloudArray: Easing huge image processing](http://ieeexplore.ieee.org/document/7729158/)**.
+
 #Table of Contents
 
 1. [Overview](https://github.com/gsd-ufal/CloudArray.jl#overview)
